@@ -1,0 +1,47 @@
+# Node modules
+node_modules/
+
+# Build output
+build/
+dist/
+
+# Log files
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Dependency directories
+.babel-loader/
+.pnp/
+.pnp.js
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE/Editor folders
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Coverage directory used by testing tools
+coverage/
+
+# Storybook build output
+.storybook-out/
+
+# Next.js build output (if applicable)
+.next/
+
+# Parcel build output (if applicable)
+.cache/
+
+# TypeScript specific
+*.tsbuildinfo
