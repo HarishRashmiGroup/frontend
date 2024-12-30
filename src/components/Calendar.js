@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Printer, Move, Fullscreen, Shrink } from 'lucide-react';
 import { format, parseISO, isBefore, isToday } from 'date-fns';
-import useSWR from 'swr';
+import useSWR, {mutate} from 'swr';
 import axios from 'axios';
 import Task from './Task';
 import TaskModal from './TaskModal';
@@ -18,9 +18,11 @@ const Calendar = () => {
   const { data: tasks = [], error, isLoading } = useSWR(
     `https://backend-9xmz.onrender.com/tasks?month=${currentDate.getMonth()}&year=${currentDate.getFullYear()}`,
     fetcher,
-    { refreshInterval: 5000 }
+    { refreshInterval: 100000 }
   );
-
+  const handleRefresh = () => {
+    mutate(`https://backend-9xmz.onrender.com/tasks?month=${currentDate.getMonth()}&year=${currentDate.getFullYear()}`);
+  };
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const getDaysInMonth = (date) => {
@@ -168,6 +170,7 @@ const Calendar = () => {
                         responsiblePersonEmail={task.responsiblePersonEmail}
                         status={task.status}
                         responsiblePersonId={1}
+                        handleRefresh = {handleRefresh}
                       />
                     ))}
                   </div>
@@ -183,6 +186,7 @@ const Calendar = () => {
         <TaskModal
           selectedDate={selectedDate}
           onClose={() => setIsModalOpen(false)}
+          handleRefresh={handleRefresh}
         />
       )}
       <div style={{ width: '100%', height: '30px' }}></div>

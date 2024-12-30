@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Search, Edit2, User, X } from 'lucide-react';
+import { Calendar, Clock, Search, Edit2, User, X, CookingPot, CookingPotIcon } from 'lucide-react';
 
 const TaskStatus = {
   PENDING: 'pending',
@@ -16,7 +16,7 @@ const Task = ({
   responsiblePersonName,
   responsiblePersonEmail,
   status,
-  onTaskUpdate
+  handleRefresh,
 }) => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,15 +26,13 @@ const Task = ({
   const [editedResponsiblePersonId, setEditedResponsiblePersonId] = useState(responsiblePersonId);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  // Add the required states
   const [searchQuery, setSearchQuery] = useState('');
   const [isNewUser, setIsNewUser] = useState(false);
   const [users, setUsers] = useState([]);
   const [newUserName, setNewUserName] = useState(null);
   const [newUserEmail, setNewUserEmail] = useState(null);
-  const [selectedUser, setSelectedUser] = useState({name:responsiblePersonName,email: responsiblePersonEmail});
+  const [selectedUser, setSelectedUser] = useState({ name: responsiblePersonName, email: responsiblePersonEmail });
 
-  // Add this effect to handle user search
   useEffect(() => {
     const searchUsers = async () => {
       if (!isNewUser && searchQuery.length >= 2) {
@@ -52,7 +50,6 @@ const Task = ({
     searchUsers();
   }, [searchQuery, isNewUser]);
 
-  // Update this function to handle user selection
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     setEditedResponsiblePersonId(user.id);
@@ -60,7 +57,6 @@ const Task = ({
     setUsers([]);
   };
 
-  // Function to clear selected user
   const clearSelectedUser = () => {
     setSelectedUser(null);
     setEditedResponsiblePersonId(null);
@@ -69,14 +65,13 @@ const Task = ({
     setSearchQuery('');
   };
 
-  // Toggle between new user or search existing
   const toggleNewUser = (checked) => {
     setIsNewUser(checked);
     if (checked) {
       setSelectedUser(null);
       setEditedResponsiblePersonId(null);
     }
-    else{
+    else {
       setNewUserEmail(null);
       setNewUserName(null);
     }
@@ -128,7 +123,6 @@ const Task = ({
   const handleEditSubmit = async () => {
     if (!editedDescription.trim()) {
       setError('Description cannot be empty');
-      onTaskUpdate();
       return;
     }
 
@@ -144,7 +138,7 @@ const Task = ({
         body: JSON.stringify({
           description: editedDescription.trim(),
           dueDate: editedDueDate,
-          assignedTo: editedResponsiblePersonId??undefined,
+          assignedTo: editedResponsiblePersonId ?? undefined,
           status: editedStatus,
           newUserEmail,
           newUserName
@@ -156,12 +150,35 @@ const Task = ({
       }
 
       const updatedTask = await response.json();
-      onTaskUpdate?.(updatedTask);
+      handleRefresh();
       setIsModalOpen(false);
     } catch (error) {
       setError(error.message);
     } finally {
       setIsLoading(false);
+      handleRefresh();
+    }
+  };
+
+  const deleteTask = async () => {
+    setError(null);
+
+    try {
+      const response = await fetch(`https://backend-9xmz.onrender.com/tasks/${id}`, {
+        method: 'Delete',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete task: ${response.statusText}`);
+      }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+      handleRefresh();
     }
   };
 
@@ -182,15 +199,27 @@ const Task = ({
         <div className="flex items-center justify-between p-2 border-b border-black/10">
           <div className="flex items-center space-x-2">
             <User className={`h-4 w-4 ${getStyles.text}`} />
+            <span className={`text-xs ${getStyles.text}`}>
+              {createdBy}
+            </span>
             {/*   */}
           </div>
-          <button
-            className={`p-2 rounded-full transition-colors ${getStyles.hover}`}
-            onClick={() => setIsModalOpen(true)}
-            aria-label="Edit task"
-          >
-            <Edit2 className={`h-4 w-4 ${getStyles.text}`} />
-          </button>
+          <div>
+            <button
+              className={`p-2 rounded-full transition-colors ${getStyles.hover}`}
+              onClick={() => deleteTask()}
+              aria-label="Delete task"
+            >
+              <CookingPotIcon className={`h-4 w-4 ${getStyles.text}`} />
+            </button>
+            <button
+              className={`p-2 rounded-full transition-colors ${getStyles.hover}`}
+              onClick={() => setIsModalOpen(true)}
+              aria-label="Edit task"
+            >
+              <Edit2 className={`h-4 w-4 ${getStyles.text}`} />
+            </button>
+          </div>
         </div>
 
         {/* Content */}

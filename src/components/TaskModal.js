@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Search, UserX } from 'lucide-react';
 
-const TaskModal = ({ selectedDate, onClose }) => {
+const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
   const [formData, setFormData] = useState({
     description: '',
     dueDate: selectedDate || new Date(),
@@ -93,6 +93,7 @@ const TaskModal = ({ selectedDate, onClose }) => {
       setError(err.message);
     } finally {
       setIsSaving(false);
+      handleRefresh();
     }
   };
 
