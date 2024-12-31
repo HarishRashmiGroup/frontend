@@ -17,6 +17,7 @@ const Task = ({
   responsiblePersonEmail,
   status,
   handleRefresh,
+  showCustomAlert,
 }) => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -152,8 +153,10 @@ const Task = ({
       const updatedTask = await response.json();
       handleRefresh();
       setIsModalOpen(false);
+      showCustomAlert("Task Updated Successfully!");
     } catch (error) {
       setError(error.message);
+      showCustomAlert(error.message);
     } finally {
       setIsLoading(false);
       handleRefresh();
@@ -162,6 +165,11 @@ const Task = ({
 
   const deleteTask = async () => {
     setError(null);
+    const isConfirmed = window.confirm('Sure to delete?');
+    if (!isConfirmed){
+      showCustomAlert("Task Deletion cancelled");
+      return;
+    }
 
     try {
       const response = await fetch(`https://backend-9xmz.onrender.com/tasks/${id}`, {
@@ -174,6 +182,7 @@ const Task = ({
       if (!response.ok) {
         throw new Error(`Failed to delete task: ${response.statusText}`);
       }
+      showCustomAlert("Task deleted!");
     } catch (error) {
       setError(error.message);
     } finally {
@@ -196,10 +205,10 @@ const Task = ({
           rounded-lg shadow-sm hover:shadow-md`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b border-black/10">
+        <div className="flex items-center justify-between p-2 border-b border-black/10 w-full">
           <div className="flex items-center space-x-2">
             <User className={`h-4 w-4 ${getStyles.text}`} />
-            <span className={`text-xs ${getStyles.text}`}>
+            <span className={`text-xs ${getStyles.text} truncate`}>
               {createdBy}
             </span>
             {/*   */}
@@ -229,7 +238,7 @@ const Task = ({
           </p>
 
           <div className="mt-2 flex items-center justify-between">
-            <span className={`text-xs ${getStyles.text}`}>
+            <span className={`text-xs ${getStyles.text} truncate`}>
               {responsiblePersonName}
             </span>
             <span className={`text-xs px-2 py-1 rounded-full ${getStyles.background} ${getStyles.text}`}>

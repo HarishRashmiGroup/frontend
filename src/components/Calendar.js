@@ -1,27 +1,65 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Printer, Move, Fullscreen, Shrink } from 'lucide-react';
-import { format, parseISO, isBefore, isToday } from 'date-fns';
-import useSWR, {mutate} from 'swr';
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Fullscreen, Shrink } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
+import useSWR, { mutate } from 'swr';
 import axios from 'axios';
 import Task from './Task';
 import TaskModal from './TaskModal';
-
-const fetcher = (url) => axios.get(url).then((res) => res.data);
+import CustomAlert from './customAlert';
+import { useNavigate } from 'react-router-dom';
 
 const Calendar = () => {
+  const navigate = useNavigate();
+
+  const fetcher = async (url) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      throw new Error('No token found');
+    }
+
+    try {
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
+      throw error;
+    }
+  };
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isExpanded, setIsExpanded] = useState(false);
   const [isScrollable, setIsScrollable] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [alertMessage, setAlertMessage] = useState(null);
+
+  const showCustomAlert = (message) => {
+    setAlertMessage(message);
+    setTimeout(() => setAlertMessage(null), 1000);
+  };
 
   const { data: tasks = [], error, isLoading } = useSWR(
     `https://backend-9xmz.onrender.com/tasks?month=${currentDate.getMonth()}&year=${currentDate.getFullYear()}`,
+    // `http://localhost:3003/tasks?month=${currentDate.getMonth()}&year=${currentDate.getFullYear()}`,
     fetcher,
-    { refreshInterval: 100000 }
+    {
+      refreshInterval: 5000,
+      onError: (error) => {
+        if (error.message !== 'No token found') {
+          showCustomAlert('Failed to load tasks. Please try again.');
+        }
+      }
+    }
   );
   const handleRefresh = () => {
     mutate(`https://backend-9xmz.onrender.com/tasks?month=${currentDate.getMonth()}&year=${currentDate.getFullYear()}`);
+    // mutate(`http://localhost:3003/tasks?month=${currentDate.getMonth()}&year=${currentDate.getFullYear()}`);
   };
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -80,6 +118,13 @@ const Calendar = () => {
 
   return (
     <div className="w-full max-w-8xl mx-auto flex flex-col h-screen">
+      {alertMessage && (
+        <CustomAlert
+          message={alertMessage}
+          onClose={() => setAlertMessage(null)}
+          position="top-2 right-2"
+        />
+      )}
       <div className="sticky top-0 bg-white z-10 shadow-sm">
         <div className="flex items-center justify-between p-4">
           <h2 className="text-xl font-semibold">
@@ -169,8 +214,9 @@ const Calendar = () => {
                         responsiblePersonName={task.responsiblePersonName}
                         responsiblePersonEmail={task.responsiblePersonEmail}
                         status={task.status}
-                        responsiblePersonId={1}
-                        handleRefresh = {handleRefresh}
+                        responsiblePersonId={task.responsiblePersonId}
+                        handleRefresh={handleRefresh}
+                        showCustomAlert={showCustomAlert}
                       />
                     ))}
                   </div>

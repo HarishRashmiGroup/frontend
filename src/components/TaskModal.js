@@ -38,8 +38,8 @@ const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
 
   const handleUserSelect = (user) => {
     setSelectedUser(user);
-    setFormData(prev => ({ 
-      ...prev, 
+    setFormData(prev => ({
+      ...prev,
       userId: user.id,
       newUser: { name: '', email: '' }
     }));
@@ -49,8 +49,8 @@ const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
 
   const clearSelectedUser = () => {
     setSelectedUser(null);
-    setFormData(prev => ({ 
-      ...prev, 
+    setFormData(prev => ({
+      ...prev,
       userId: '',
       newUser: { name: '', email: '' }
     }));
@@ -80,10 +80,14 @@ const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
     try {
       setIsSaving(true);
       setError('');
-
+      const token = localStorage.getItem('token');
       const response = await fetch('https://backend-9xmz.onrender.com/tasks', {
+      // const response = await fetch('http://localhost:3003/tasks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(formData)
       });
 
@@ -98,7 +102,7 @@ const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
   };
 
   const formatDateForInput = (date) => {
-    return date instanceof Date 
+    return date instanceof Date
       ? date.toISOString().split('T')[0]
       : date;
   };
@@ -158,7 +162,7 @@ const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
               <div className="border rounded-md p-3 bg-gray-50 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Assignned To</span>
-                  <UserX 
+                  <UserX
                     className="w-4 h-4 text-gray-500 cursor-pointer hover:text-red-500"
                     onClick={clearSelectedUser}
                   />
@@ -207,7 +211,7 @@ const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
                   />
                   <Search className="absolute right-2 top-2 text-gray-400" size={20} />
                 </div>
-                
+
                 {users.length > 0 && (
                   <ul className="mt-2 border rounded-md max-h-32 overflow-y-auto">
                     {users.map(user => (
