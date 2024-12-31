@@ -1,4 +1,9 @@
 services:
-  routes:
-    - source: /*
-      destination: /index.html
+  - type: web 
+    name: calendar
+    env: node  
+    buildCommand: npm install && npm run build  
+    startCommand: npm start  
+    routes:
+      - source: /*
+        destination: /index.html
