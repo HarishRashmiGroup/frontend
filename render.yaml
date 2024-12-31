@@ -1,0 +1,4 @@
+services:
+  routes:
+    - source: /*
+      destination: /index.html
