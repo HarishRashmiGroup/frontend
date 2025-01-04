@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Edit2, X,  CookingPotIcon, MessageSquarePlus } from 'lucide-react';
+import { Search, Edit2, X, CookingPotIcon, MessageSquarePlus } from 'lucide-react';
 import CommentsModal from './CommentsModal';
 
 const TaskStatus = {
@@ -177,11 +177,13 @@ const Task = ({
     }
 
     try {
+      const token = localStorage.getItem('token');
       // const response = await fetch(`http://localhost:3003/tasks/${id}`, {
       const response = await fetch(`https://backend-9xmz.onrender.com/tasks/${id}`, {
         method: 'Delete',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
       });
 
@@ -427,7 +429,7 @@ const Task = ({
           </div>
         </div>
       )}
-      <CommentsModal 
+      <CommentsModal
         isOpen={isCommentModalOpen}
         onClose={() => setIsCommentModalOpen(false)}
         taskId={id}
