@@ -7,6 +7,7 @@ const CommentsModal = ({ isOpen, onClose, taskId, showCustomAlert }) => {
     const [newComment, setNewComment] = useState('');
     const [isLoadingComments, setIsLoadingComments] = useState(false);
     const [commentError, setCommentError] = useState(null);
+    const [isDisabled, setIsDisabled] = useState(false);
     const [token, setToken] = useState(localStorage.getItem('token'));
   
     const fetchComments = async () => {
@@ -33,6 +34,7 @@ const CommentsModal = ({ isOpen, onClose, taskId, showCustomAlert }) => {
     };
   
     useEffect(() => {
+      isDisabled(false);
       setToken(localStorage.getItem('token'));
       if (isOpen) {
         fetchComments();
@@ -40,6 +42,7 @@ const CommentsModal = ({ isOpen, onClose, taskId, showCustomAlert }) => {
     }, [isOpen, taskId]);
   
     const handleCommentSubmit = async () => {
+      setIsDisabled(true);
       if (!newComment.trim()) return;
   
       try {
@@ -66,6 +69,7 @@ const CommentsModal = ({ isOpen, onClose, taskId, showCustomAlert }) => {
       } catch (error) {
         showCustomAlert('Failed to add comment');
       }
+      setIsDisabled(false);
     };
   
     if (!isOpen) return null;
@@ -118,7 +122,7 @@ const CommentsModal = ({ isOpen, onClose, taskId, showCustomAlert }) => {
               />
               <button
                 onClick={handleCommentSubmit}
-                disabled={!newComment.trim()}
+                disabled={!newComment.trim() || isDisabled}
                 className="px-4 py-2 text-sm text-white bg-blue-500 hover:bg-blue-600 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add Comment
