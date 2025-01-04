@@ -131,6 +131,8 @@ const Task = ({
     setError(null);
 
     try {
+      
+      // const response = await fetch(`http://localhost:3003/tasks/${id}`, {
       const response = await fetch(`https://backend-9xmz.onrender.com/tasks/${id}`, {
         method: 'PATCH',
         headers: {
@@ -172,6 +174,7 @@ const Task = ({
     }
 
     try {
+      // const response = await fetch(`http://localhost:3003/tasks/${id}`, {
       const response = await fetch(`https://backend-9xmz.onrender.com/tasks/${id}`, {
         method: 'Delete',
         headers: {

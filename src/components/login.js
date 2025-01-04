@@ -16,7 +16,7 @@ const Login = () => {
     setError('');
     
     try {
-        // const response = await fetch('http://localhost:3003/users/send-otp',{
+      // const response = await fetch('http://localhost:3003/users/send-otp',{
       const response = await fetch('https://backend-9xmz.onrender.com/users/send-otp',{
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
