@@ -133,12 +133,13 @@ const Task = ({
     setError(null);
 
     try {
-
+      const token = localStorage.getItem('token');
       // const response = await fetch(`http://localhost:3003/tasks/${id}`, {
       const response = await fetch(`https://backend-9xmz.onrender.com/tasks/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           description: editedDescription.trim(),
