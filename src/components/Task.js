@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Search, Edit2, User, X, CookingPot, CookingPotIcon } from 'lucide-react';
+import { Search, Edit2, X,  CookingPotIcon, MessageSquarePlus } from 'lucide-react';
+import CommentsModal from './CommentsModal';
 
 const TaskStatus = {
   PENDING: 'pending',
@@ -33,6 +34,7 @@ const Task = ({
   const [newUserName, setNewUserName] = useState(null);
   const [newUserEmail, setNewUserEmail] = useState(null);
   const [selectedUser, setSelectedUser] = useState({ name: responsiblePersonName, email: responsiblePersonEmail });
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
   useEffect(() => {
     const searchUsers = async () => {
@@ -131,7 +133,7 @@ const Task = ({
     setError(null);
 
     try {
-      
+
       // const response = await fetch(`http://localhost:3003/tasks/${id}`, {
       const response = await fetch(`https://backend-9xmz.onrender.com/tasks/${id}`, {
         method: 'PATCH',
@@ -168,7 +170,7 @@ const Task = ({
   const deleteTask = async () => {
     setError(null);
     const isConfirmed = window.confirm('Sure to delete?');
-    if (!isConfirmed){
+    if (!isConfirmed) {
       showCustomAlert("Task Deletion cancelled");
       return;
     }
@@ -208,15 +210,22 @@ const Task = ({
           rounded-lg shadow-sm hover:shadow-md`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b border-black/10 w-full">
+        <div className="flex items-center justify-between p-2 border-b border-black/10 position-relative">
           <div className="flex items-center space-x-2">
-            <User className={`h-4 w-4 ${getStyles.text}`} />
-            <span className={`text-xs ${getStyles.text} truncate`}>
+            {/* <User className={`h-4 w-4 ${getStyles.text}`} /> */}
+            <span className={`text-xs ${getStyles.text} `} style={{ wordBreak: 'break-all' }}>
               {createdBy}
             </span>
             {/*   */}
           </div>
           <div>
+            <button
+              className={`p-2 rounded-full transition-colors ${getStyles.hover}`}
+              onClick={() => setIsCommentModalOpen(true)}
+              aria-label="Comments on task"
+            >
+              <MessageSquarePlus className={`h-4 w-4 ${getStyles.text}`} />
+            </button>
             <button
               className={`p-2 rounded-full transition-colors ${getStyles.hover}`}
               onClick={() => deleteTask()}
@@ -336,14 +345,14 @@ const Task = ({
                       className="w-full border rounded-md p-2 text-sm"
                       placeholder="Name"
                       value={newUserName}
-                      onChange={(e) => setNewUserName(e.value)}
+                      onChange={(e) => setNewUserName(e.target.value)}
                     />
                     <input
                       type="email"
                       className="w-full border rounded-md p-2 text-sm"
                       placeholder="Email"
                       value={newUserEmail}
-                      onChange={(e) => setNewUserEmail(e.value)}
+                      onChange={(e) => setNewUserEmail(e.target.value)}
                     />
                   </div>
                 ) : (
@@ -417,6 +426,12 @@ const Task = ({
           </div>
         </div>
       )}
+      <CommentsModal 
+        isOpen={isCommentModalOpen}
+        onClose={() => setIsCommentModalOpen(false)}
+        taskId={id}
+        showCustomAlert={showCustomAlert}
+      />
     </>
   );
 };
