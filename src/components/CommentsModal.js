@@ -34,7 +34,7 @@ const CommentsModal = ({ isOpen, onClose, taskId, showCustomAlert }) => {
     };
   
     useEffect(() => {
-      isDisabled(false);
+      setIsDisabled(false);
       setToken(localStorage.getItem('token'));
       if (isOpen) {
         fetchComments();
