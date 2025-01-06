@@ -99,7 +99,7 @@ const CommentsModal = ({ isOpen, onClose, taskId, showCustomAlert }) => {
                 {comments.map((comment, index) => (
                   <div key={index} className="bg-gray-50 p-3 rounded-lg">
                     <div className="flex justify-between items-start">
-                      <span className="font-medium text-sm">{comment.createdBy.name}</span>
+                      <span className="font-medium text-sm">{comment.createdBy}</span>
                       <span className="text-xs text-gray-500">
                         {new Date(comment.date).toLocaleDateString()}
                       </span>
