@@ -6,7 +6,7 @@ const CustomAlert = ({
   onClose,
   type = 'success',
   position = 'top-right',
-  duration = 5000,
+  duration = 3000,
   title
 }) => {
   const [isVisible, setIsVisible] = useState(false);
