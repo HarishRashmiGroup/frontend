@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Search, UserX } from 'lucide-react';
+import { useAlert } from '../context/AlertContext';
 
 const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
       email: ''
     }
   });
+  const { showAlert } = useAlert();
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState([]);
   const [isNewUser, setIsNewUser] = useState(false);
@@ -28,6 +30,7 @@ const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
           setUsers(data);
         } catch (err) {
           console.error('Error searching users:', err);
+          showAlert('Error searching users.','error','');
         }
       } else {
         setUsers([]);
@@ -91,10 +94,11 @@ const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
         body: JSON.stringify(formData)
       });
 
-      if (!response.ok) throw new Error('Failed to save task');
+      if (!response.ok) showAlert('Failed to save task.','error','');
       onClose();
     } catch (err) {
       setError(err.message);
+      showAlert(err.message,'error','');
     } finally {
       setIsSaving(false);
       handleRefresh();

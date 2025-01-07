@@ -5,11 +5,12 @@ import useSWR, { mutate } from 'swr';
 import axios from 'axios';
 import Task from './Task';
 import TaskModal from './TaskModal';
-import CustomAlert from './customAlert';
 import { useNavigate } from 'react-router-dom';
+import { useAlert } from '../context/AlertContext';
 
 const Calendar = () => {
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
 
   const fetcher = async (url) => {
     const token = localStorage.getItem('token');
@@ -27,6 +28,7 @@ const Calendar = () => {
       if (error.response && (error.response.status === 401 || error.response.status === 403)) {
         localStorage.removeItem('token');
         navigate('/login');
+        showAlert('Needs to login!','warning','')
       }
       throw error;
     }
@@ -39,11 +41,6 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
 
-  const showCustomAlert = (message) => {
-    setAlertMessage(message);
-    setTimeout(() => setAlertMessage(null), 1000);
-  };
-
   const { data: tasks = [], error, isLoading } = useSWR(
     `https://backend-9xmz.onrender.com/tasks?month=${currentDate.getMonth()}&year=${currentDate.getFullYear()}`,
     // `http://localhost:3003/tasks?month=${currentDate.getMonth()}&year=${currentDate.getFullYear()}`,
@@ -52,7 +49,7 @@ const Calendar = () => {
       refreshInterval: 5000,
       onError: (error) => {
         if (error.message !== 'No token found') {
-          showCustomAlert('Failed to load tasks. Please try again.');
+          showAlert('Failed to load tasks. Please try again.', 'error', '');
         }
       }
     }
@@ -118,13 +115,6 @@ const Calendar = () => {
 
   return (
     <div className="w-full max-w-8xl mx-auto flex flex-col h-screen">
-      {alertMessage && (
-        <CustomAlert
-          message={alertMessage}
-          onClose={() => setAlertMessage(null)}
-          position="top-2 right-2"
-        />
-      )}
       <div className="sticky top-0 bg-white z-10 shadow-sm">
         <div className="flex items-center justify-between p-4">
           <h2 className="text-xl font-semibold">
@@ -216,7 +206,6 @@ const Calendar = () => {
                         status={task.status}
                         responsiblePersonId={task.responsiblePersonId}
                         handleRefresh={handleRefresh}
-                        showCustomAlert={showCustomAlert}
                       />
                     ))}
                   </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Edit2, X, CookingPotIcon, MessageSquarePlus } from 'lucide-react';
 import CommentsModal from './CommentsModal';
+import { useAlert } from '../context/AlertContext';
 
 const TaskStatus = {
   PENDING: 'pending',
@@ -18,9 +19,8 @@ const Task = ({
   responsiblePersonEmail,
   status,
   handleRefresh,
-  showCustomAlert,
 }) => {
-
+  const { showAlert } = useAlert();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editedDescription, setEditedDescription] = useState(description);
   const [editedDueDate, setEditedDueDate] = useState(dueDate);
@@ -45,6 +45,7 @@ const Task = ({
           setUsers(data);
         } catch (err) {
           console.error('Error searching users:', err);
+          showAlert('Error searching users.','error','');
         }
       } else {
         setUsers([]);
@@ -153,15 +154,16 @@ const Task = ({
 
       if (!response.ok) {
         throw new Error(`Failed to update task: ${response.statusText}`);
+        showAlert('Failed to update task.','error','');
       }
 
       const updatedTask = await response.json();
       handleRefresh();
       setIsModalOpen(false);
-      showCustomAlert("Task Updated Successfully!");
+      showAlert("Task Updated Successfully!",'success','');
     } catch (error) {
       setError(error.message);
-      showCustomAlert(error.message);
+      showAlert(error.message,'error','');
     } finally {
       setIsLoading(false);
       handleRefresh();
@@ -172,7 +174,7 @@ const Task = ({
     setError(null);
     const isConfirmed = window.confirm('Sure to delete?');
     if (!isConfirmed) {
-      showCustomAlert("Task Deletion cancelled");
+      showAlert("Task Deletion cancelled.",'warning','');
       return;
     }
 
@@ -190,7 +192,7 @@ const Task = ({
       if (!response.ok) {
         throw new Error(`Failed to delete task: ${response.statusText}`);
       }
-      showCustomAlert("Task deleted!");
+      showAlert("Task deleted successfully!",'success','');
     } catch (error) {
       setError(error.message);
     } finally {
@@ -433,7 +435,6 @@ const Task = ({
         isOpen={isCommentModalOpen}
         onClose={() => setIsCommentModalOpen(false)}
         taskId={id}
-        showCustomAlert={showCustomAlert}
       />
     </>
   );

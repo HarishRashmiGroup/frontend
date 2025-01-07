@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAlert } from '../context/AlertContext';
 
 const Login = () => {
+  const { showAlert } = useAlert();
   const [showOtp, setShowOtp] = useState(false);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -27,6 +29,7 @@ const Login = () => {
       setShowOtp(true);
     } catch (err) {
       setError('Failed to send OTP. Please try again.');
+      showAlert('Failed to send OTP. Please try again.', 'error', '');
     } finally {
       setLoading(false);
     }
@@ -45,13 +48,17 @@ const Login = () => {
         body: JSON.stringify({ email, otp })
       });
 
-      if (!response.ok) throw new Error('Invalid OTP');
+      if (!response.ok) {
+        throw new Error('Invalid OTP');
+      }
 
       const data = await response.json();
       localStorage.setItem('token', data.token);
       navigate('/');
+      showAlert('Login successful.','success','');
     } catch (err) {
       setError('Invalid OTP. Please try again.');
+      showAlert('Invalid OTP. Please try again.', 'error', '');
     } finally {
       setLoading(false);
     }
@@ -71,11 +78,11 @@ const Login = () => {
           {showOtp ? 'Enter OTP' : 'Login'}
         </h2>
 
-        {error && (
+        {/* {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
             {error}
           </div>
-        )}
+        )} */}
 
         <form onSubmit={showOtp ? handleOtpSubmit : handleEmailSubmit} className="space-y-4">
           {!showOtp ? (

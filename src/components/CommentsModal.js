@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useAlert } from '../context/AlertContext';
 
-const CommentsModal = ({ isOpen, onClose, taskId, showCustomAlert }) => {
+const CommentsModal = ({ isOpen, onClose, taskId }) => {
   
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
@@ -9,6 +10,7 @@ const CommentsModal = ({ isOpen, onClose, taskId, showCustomAlert }) => {
     const [commentError, setCommentError] = useState(null);
     const [isDisabled, setIsDisabled] = useState(false);
     const [token, setToken] = useState(localStorage.getItem('token'));
+    const { showAlert } = useAlert();
   
     const fetchComments = async () => {
       setIsLoadingComments(true);
@@ -27,7 +29,7 @@ const CommentsModal = ({ isOpen, onClose, taskId, showCustomAlert }) => {
         setComments(data);
       } catch (error) {
         setCommentError(error.message);
-        showCustomAlert('Failed to load comments');
+        showAlert('Failed to load comments.','error','');
       } finally {
         setIsLoadingComments(false);
       }
@@ -61,13 +63,14 @@ const CommentsModal = ({ isOpen, onClose, taskId, showCustomAlert }) => {
   
         if (!response.ok) {
           throw new Error('Failed to add comment');
+          showAlert('Failed to add comment.','error','');
         }
   
         setNewComment('');
         fetchComments();
-        showCustomAlert('Comment added successfully');
+        showAlert('Comment added successfully.','success','');
       } catch (error) {
-        showCustomAlert('Failed to add comment');
+        showAlert('Failed to add comment.','error','');
       }
       setIsDisabled(false);
     };
