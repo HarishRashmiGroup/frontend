@@ -95,6 +95,7 @@ const TaskModal = ({ selectedDate, onClose, handleRefresh }) => {
       });
 
       if (!response.ok) showAlert('Failed to save task.','error','');
+      if(response.ok) showAlert('Task created successfully.','success','');
       onClose();
     } catch (err) {
       setError(err.message);

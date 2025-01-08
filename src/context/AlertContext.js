@@ -26,7 +26,7 @@ export const AlertProvider = ({ children }) => {
           title={alert.title}
           onClose={() => hideAlert(alert.id)}
           position="top-right"
-          duration={5000}
+          duration={3000}
         />
       ))}
     </AlertContext.Provider>
