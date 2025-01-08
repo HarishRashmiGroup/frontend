@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, CirclePlus } from 'lucide-react';
 import { format, isSameDay, addDays } from 'date-fns';
 import useSWR, { mutate } from 'swr';
 import { useAlert } from '../context/AlertContext';
 import Task from './Task';
+import TaskModal from './TaskModal';
 
 
 const MobileCalendar = () => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const [createModalOpen, setCreateModalOpen] = useState(false);
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const { showAlert } = useAlert();
@@ -68,6 +70,7 @@ const MobileCalendar = () => {
     };
 
     useEffect(() => {
+        console.log(selectedDate);
         if (isMonthView) {
             setSearchParams({
                 month: (selectedDate.getMonth()).toString(),
@@ -123,6 +126,12 @@ const MobileCalendar = () => {
         setIsMonthView(false);
     };
 
+    const openCreateModal = (date) => {
+        if (!date) return;
+        setSelectedDate(date);
+        setCreateModalOpen(true);
+    }
+
     return (
         <div className="w-full h-full bg-white">
             {/* Header */}
@@ -134,6 +143,12 @@ const MobileCalendar = () => {
                             : format(selectedDate, 'MMM d, yyyy')}
                     </h2>
                     <div className="flex gap-2">
+                        <button
+                            onClick={() => openCreateModal(selectedDate)}
+                            className="p-2 rounded-full hover:bg-gray-100"
+                            aria-label="Create task">
+                            <CirclePlus className='w-5 h-5'></CirclePlus>
+                        </button>
                         {isMonthView ? (
                             <>
                                 <button
@@ -190,6 +205,13 @@ const MobileCalendar = () => {
             ) : (
                 <DayView tasks={dayTasks} handleRefresh={handleRefresh} />
             )}
+
+
+            {createModalOpen && <TaskModal
+                selectedDate={format(selectedDate, 'yyyy-MM-dd')}
+                onClose={() => setCreateModalOpen(false)}
+                handleRefresh={handleRefresh}
+            ></TaskModal>}
         </div>
     );
 };
