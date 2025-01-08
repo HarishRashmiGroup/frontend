@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Fullscreen, Shrink } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import useSWR, { mutate } from 'swr';
 import axios from 'axios';
 import Task from './Task';
 import TaskModal from './TaskModal';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAlert } from '../context/AlertContext';
 
 const Calendar = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { showAlert } = useAlert();
 
@@ -28,18 +29,29 @@ const Calendar = () => {
       if (error.response && (error.response.status === 401 || error.response.status === 403)) {
         localStorage.removeItem('token');
         navigate('/login');
-        showAlert('Needs to login!','warning','')
+        showAlert('Needs to login!', 'warning', '')
       }
       throw error;
     }
   };
+  const initialDate = useMemo(() => {
+    const monthParam = searchParams.get('month');
+    const yearParam = searchParams.get('year');
+    const dateParam = searchParams.get('date');
 
-  const [currentDate, setCurrentDate] = useState(new Date());
+    if (dateParam) {
+      return new Date(dateParam);
+    }
+    if (monthParam && yearParam) {
+      return new Date(parseInt(yearParam), parseInt(monthParam), 1);
+    }
+    return new Date();
+  }, [searchParams]);
+  const [currentDate, setCurrentDate] = useState(initialDate);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isScrollable, setIsScrollable] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [alertMessage, setAlertMessage] = useState(null);
 
   const { data: tasks = [], error, isLoading } = useSWR(
     `https://backend-9xmz.onrender.com/tasks?month=${currentDate.getMonth()}&year=${currentDate.getFullYear()}`,
@@ -96,7 +108,9 @@ const Calendar = () => {
   };
 
   const navigateMonth = (direction) => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + direction, 1));
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + direction;
+    setCurrentDate(new Date(year, month, 1));
   };
 
   const formatDate = (date) => {
@@ -112,6 +126,15 @@ const Calendar = () => {
     setSelectedDate((formatDate(date)));
     setIsModalOpen(true);
   };
+
+  useEffect(() => {
+    if (currentDate) {
+      setSearchParams({
+        month: (currentDate.getMonth()).toString(),
+        year: currentDate.getFullYear().toString(),
+      });
+    }
+  }, [currentDate, setSearchParams])
 
   return (
     <div className="w-full max-w-8xl mx-auto flex flex-col h-screen">
