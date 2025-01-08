@@ -23,9 +23,6 @@ const MobileCalendar = () => {
             const response = await axios.get(url, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            if (!response.ok) {
-                showAlert(response.message, 'error', '');
-            }
             return response.data;
 
         } catch (error) {
