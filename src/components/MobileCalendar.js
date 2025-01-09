@@ -32,6 +32,8 @@ const MobileCalendar = () => {
                 localStorage.removeItem('token');
                 navigate('/login');
                 showAlert('Needs to login!', 'warning', '')
+            }else{
+            showAlert(error.response.data.message, 'error','');
             }
             throw error;
         }
@@ -40,28 +42,30 @@ const MobileCalendar = () => {
         const monthParam = searchParams.get('month');
         const yearParam = searchParams.get('year');
         const dateParam = searchParams.get('date');
-
+        const now = new Date();
         if (dateParam) {
-            return new Date(dateParam);
+            const requestedDate = new Date(dateParam);
+            return isNaN(requestedDate.getTime()) ? now : requestedDate;
         }
         if (monthParam && yearParam) {
-            return new Date(parseInt(yearParam), parseInt(monthParam), 1);
+            const requestedDate = new Date(parseInt(yearParam), parseInt(monthParam), 1);
+            return isNaN(requestedDate.getTime()) ? now : requestedDate;
         }
-        return new Date();
+        return now;
     }, [searchParams]);
 
     const [selectedDate, setSelectedDate] = useState(initialDate);
     const [isMonthView, setIsMonthView] = useState(!searchParams.get('date'));
 
     const { data: monthTaskCounts } = useSWR(
-        // `http://localhost:3003/tasks/counts?month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}`,
-        isMonthView ? `https://backend-9xmz.onrender.com/tasks/counts?month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}` : null,
+        `http://localhost:3003/tasks/counts?month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}`,
+        // isMonthView ? `https://backend-9xmz.onrender.com/tasks/counts?month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}` : null,
         fetcher
     );
 
     const { data: dayTasks } = useSWR(
-        // !isMonthView ? `http://localhost:3003/tasks/day/?date=${format(selectedDate, 'yyyy-MM-dd')}` : null,
-        !isMonthView ? `https://backend-9xmz.onrender.com/tasks/day/?date=${format(selectedDate, 'yyyy-MM-dd')}` : null,
+        !isMonthView ? `http://localhost:3003/tasks/day/?date=${format(selectedDate, 'yyyy-MM-dd')}` : null,
+        // !isMonthView ? `https://backend-9xmz.onrender.com/tasks/day/?date=${format(selectedDate, 'yyyy-MM-dd')}` : null,
         fetcher
     );
     const handleRefresh = () => {

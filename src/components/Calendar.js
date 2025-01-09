@@ -38,14 +38,16 @@ const Calendar = () => {
     const monthParam = searchParams.get('month');
     const yearParam = searchParams.get('year');
     const dateParam = searchParams.get('date');
-
+    const now = new Date();
     if (dateParam) {
-      return new Date(dateParam);
+      const requestedDate = new Date(dateParam);
+      return isNaN(requestedDate.getTime()) ? now : requestedDate;
     }
     if (monthParam && yearParam) {
-      return new Date(parseInt(yearParam), parseInt(monthParam), 1);
+      const requestedDate = new Date(parseInt(yearParam), parseInt(monthParam), 1);
+      return isNaN(requestedDate.getTime()) ? now : requestedDate;
     }
-    return new Date();
+    return now;
   }, [searchParams]);
   const [currentDate, setCurrentDate] = useState(initialDate);
   const [isExpanded, setIsExpanded] = useState(false);
