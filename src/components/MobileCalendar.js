@@ -58,14 +58,14 @@ const MobileCalendar = () => {
     const [isMonthView, setIsMonthView] = useState(!searchParams.get('date'));
 
     const { data: monthTaskCounts } = useSWR(
-        `http://localhost:3003/tasks/counts?month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}`,
-        // isMonthView ? `https://backend-9xmz.onrender.com/tasks/counts?month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}` : null,
+        // `http://localhost:3003/tasks/counts?month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}`,
+        isMonthView ? `https://backend-9xmz.onrender.com/tasks/counts?month=${selectedDate.getMonth()}&year=${selectedDate.getFullYear()}` : null,
         fetcher
     );
 
     const { data: dayTasks } = useSWR(
-        !isMonthView ? `http://localhost:3003/tasks/day/?date=${format(selectedDate, 'yyyy-MM-dd')}` : null,
-        // !isMonthView ? `https://backend-9xmz.onrender.com/tasks/day/?date=${format(selectedDate, 'yyyy-MM-dd')}` : null,
+        // !isMonthView ? `http://localhost:3003/tasks/day/?date=${format(selectedDate, 'yyyy-MM-dd')}` : null,
+        !isMonthView ? `https://backend-9xmz.onrender.com/tasks/day/?date=${format(selectedDate, 'yyyy-MM-dd')}` : null,
         fetcher
     );
     const handleRefresh = () => {
