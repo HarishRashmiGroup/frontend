@@ -74,7 +74,6 @@ const MobileCalendar = () => {
     };
 
     useEffect(() => {
-        console.log(selectedDate);
         if (isMonthView) {
             setSearchParams({
                 month: (selectedDate.getMonth()).toString(),
